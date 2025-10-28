@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <table border="1" style="width:800px; font-family:Arial">
+        <tr>
+            <td colspan="2" style="text-align:center">
+                <h3>Website Header</h3>
+            </td>
+        </tr>
+        <tr>
+            <td style="width:300px">
+                <h3 style="background-color: cadetblue">Left Navigation Menus</h3>
+            </td>
+            <td style="width:800px">
+                @RenderBody()
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center; font-size:x-small">
+                <h3 style="background-color : ivory; color: saddlebrown" > Footer</h3>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

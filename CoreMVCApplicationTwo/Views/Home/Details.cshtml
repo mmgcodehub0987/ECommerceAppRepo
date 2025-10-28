@@ -1,0 +1,19 @@
+﻿@{
+    Layout = "_Layout";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewData["DataOne"]</title>
+</head>
+<body>
+    <h1>@ViewData["DataTwo"]</h1>
+    @{
+        var stud = ViewData["DataThree"] as CoreMVCApplicationTwo.Models.Student;
+        //var list = ViewData["DataFour"] as List<CoreMVCApplicationTwo.Models.Student> ??  new List<CoreMVCApplicationTwo.Models.Student>();
+    }
+
+    <div> Student ID: @stud?.Id</div>
+    <div> Student FullName: @stud?.firstName <p> </p> @stud?.lastName</div>
+</body>
