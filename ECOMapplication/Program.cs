@@ -24,6 +24,7 @@ namespace ECommerceApp
             builder.Services.AddSwaggerGen();
             builder.Services.AddScoped<CustomerService>();
             builder.Services.AddScoped<AddressService>();
+            builder.Services.AddScoped<CategoryService>();
 
             // Configure EF Core with SQL Server
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
