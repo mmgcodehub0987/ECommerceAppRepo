@@ -133,7 +133,7 @@ namespace ECOMapplication.Services
                 //prepare response
                 var confirmationResponse = new ConfirmationResponseDTO()
                 {
-                    Message = $"Customer with Id {updateDTO.CustomerId} updated successfully."
+                    Message = $"Customer with Id '{updateDTO.CustomerId}' updated successfully."
                 };
                 return new ApiResponse<ConfirmationResponseDTO>(200, confirmationResponse);
             }
@@ -159,7 +159,7 @@ namespace ECOMapplication.Services
                 //create response
                 var deleteResponse = new ConfirmationResponseDTO()
                 {
-                    Message = $"User with user id: {id} deleted successfully"
+                    Message = $"User with user id: '{id}' deleted successfully"
                 };
                 return new ApiResponse<ConfirmationResponseDTO>(400, deleteResponse);
             }

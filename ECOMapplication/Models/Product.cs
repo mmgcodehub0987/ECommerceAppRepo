@@ -12,7 +12,7 @@ namespace ECOMapplication.Models
         
         
         [Required(ErrorMessage ="Description is required.")]
-        [StringLength(600, ErrorMessage ="Description entered is too long")]
+        [StringLength(800, ErrorMessage ="Description entered is too long")]
         [MinLength(15, ErrorMessage ="Minimum of 15 characters must be entered in description.")]
         public string Description { get; set; } = string.Empty;
 
@@ -34,7 +34,7 @@ namespace ECOMapplication.Models
 
 
         [ForeignKey("CategoryId")]
-        public Category Category { get; set; }
+        public Category Category { get; set; } = null!;
 
 
         public ICollection<OrderItem> OrderItems { get; set; }

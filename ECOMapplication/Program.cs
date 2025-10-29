@@ -25,6 +25,7 @@ namespace ECommerceApp
             builder.Services.AddScoped<CustomerService>();
             builder.Services.AddScoped<AddressService>();
             builder.Services.AddScoped<CategoryService>();
+            builder.Services.AddScoped<ProductService>();
 
             // Configure EF Core with SQL Server
             builder.Services.AddDbContext<ApplicationDbContext>(options =>

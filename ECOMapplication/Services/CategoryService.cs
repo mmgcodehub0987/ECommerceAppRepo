@@ -92,7 +92,7 @@ namespace ECOMapplication.Services
                 await _DbContext.SaveChangesAsync();
                 var respondMessage = new ConfirmationResponseDTO()
                 {
-                    Message = $"Category Name: {category.CategoryName} upadted successfully"
+                    Message = $"Category Name: '{category.CategoryName}' upadted successfully"
                 };
                 return new ApiResponse<ConfirmationResponseDTO>(200, respondMessage);
             }
@@ -117,7 +117,7 @@ namespace ECOMapplication.Services
 
                 var respondMessage = new ConfirmationResponseDTO()
                 {
-                    Message = $"category: {category.CategoryName} deleted successfully"
+                    Message = $"category: '{category.CategoryName}' deleted successfully"
                 };
                 return new ApiResponse<ConfirmationResponseDTO> (200, respondMessage);
             }
