@@ -29,6 +29,7 @@ namespace ECommerceApp
             builder.Services.AddScoped<CartService>();
             builder.Services.AddScoped<PaymentService>();
             builder.Services.AddScoped<CancellationService>();
+            builder.Services.AddScoped<RefundService>();
 
             // Configure EF Core with SQL Server
             builder.Services.AddDbContext<ApplicationDbContext>(options =>

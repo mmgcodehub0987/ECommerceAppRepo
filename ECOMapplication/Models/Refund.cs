@@ -45,7 +45,7 @@ namespace ECOMapplication.Models
         [Required]
         public DateTime InitiatedAt { get; set; }
 
-        public DateTime CompletedAt { get; set; } = DateTime.MinValue;
+        public DateTime? CompletedAt { get; set; } = DateTime.MinValue;
 
         public int ProcessedBy { get; set; }
     }
