@@ -115,6 +115,144 @@ namespace ECOMapplication.Services
             }
         }
 
+        public async Task<ApiResponse<PaymentResponseDTO>> GetPaymentByIdAsync(int paymentId)
+        {
+            try
+            {
+                var payment = await _DbContext.Payments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == paymentId);
+                if (payment == null)
+                {
+                    return new ApiResponse<PaymentResponseDTO>(404, "Payment not found.");
+                }
+                var paymentResponse = new PaymentResponseDTO
+                {
+                    PaymentId = payment.Id,
+                    OrderId = payment.OrderId,
+                    PaymentMethod = payment.PaymentMethod,
+                    TransactionId = payment.TransactionId,
+                    Amount = payment.Amount,
+                    PaymentDate = payment.PaymentDate,
+                    Status = payment.PaymentStatus
+                };
+                return new ApiResponse<PaymentResponseDTO>(200, paymentResponse);
+            }
+            catch (Exception)
+            {
+                return new ApiResponse<PaymentResponseDTO>(500, "An unexpected error occurred while retrieving the payment.");
+            }
+        }
+
+        public async Task<ApiResponse<ConfirmationResponseDTO>> UpdatePaymentStatusAsync(PaymentStatusUpdateDTO statusUpdate)
+        {
+            try
+            {
+                var payment = await _DbContext.Payments
+                .Include(p => p.Order)
+                .FirstOrDefaultAsync(p => p.Id == statusUpdate.PaymentId);
+                if (payment == null)
+                {
+                    return new ApiResponse<ConfirmationResponseDTO>(404, "Payment not found.");
+                }
+                //update the status
+                payment.PaymentStatus = statusUpdate.Status;
+
+                // Update order status if payment is now completed and the method is not COD
+                if (payment.PaymentStatus == PaymentStatus.Completed && !IsCashOnDelivery(payment.PaymentMethod))
+                {
+                    payment.TransactionId = statusUpdate.TransactionId;
+                    payment.Order.OrderStatus = OrderStatus.Processing;
+                }
+                await _DbContext.SaveChangesAsync();
+
+                // Send Order Confirmation Email if Order Status is Processing
+                if (payment.Order.OrderStatus == OrderStatus.Processing)
+                {
+                    await SendOrderConfirmationEmailAsync(payment.Order.OrderId);
+                }
+                var confirmation = new ConfirmationResponseDTO
+                {
+                    Message = $"Payment with ID {payment.Id} updated to status '{payment.PaymentStatus}'."
+                };
+                return new ApiResponse<ConfirmationResponseDTO>(200, confirmation);
+            }
+            catch (Exception)
+            {
+                return new ApiResponse<ConfirmationResponseDTO>(500, "An unexpected error occurred while updating the payment status.");
+            }
+        }
+        public async Task<ApiResponse<ConfirmationResponseDTO>> CompleteCODPaymentAsync(CODPaymentUpdateDTO codPaymentUpdateDTO)
+        {
+            using (var transaction = await _DbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var payment = await _DbContext.Payments
+                    .Include(p => p.Order)
+                    .FirstOrDefaultAsync(p => p.Id == codPaymentUpdateDTO.PaymentId && p.OrderId == codPaymentUpdateDTO.OrderId);
+                    if (payment == null)
+                    {
+                        return new ApiResponse<ConfirmationResponseDTO>(404, "Payment not found.");
+                    }
+                    if (payment.Order == null)
+                    {
+                        return new ApiResponse<ConfirmationResponseDTO>(404, "No Order associated with this Payment.");
+                    }
+                    if (payment.Order.OrderStatus != OrderStatus.Shipped)
+                    {
+                        return new ApiResponse<ConfirmationResponseDTO>(400, $"Order cannot be marked as Delivered from {payment.Order.OrderStatus} State");
+                    }
+                    if (!IsCashOnDelivery(payment.PaymentMethod))
+                    {
+                        return new ApiResponse<ConfirmationResponseDTO>(409, "Payment method is not Cash on Delivery.");
+                    }
+                    payment.PaymentStatus = PaymentStatus.Completed;
+                    payment.Order.OrderStatus = OrderStatus.Delivered;
+                    await _DbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    var confirmation = new ConfirmationResponseDTO
+                    {
+                        Message = $"COD Payment for Order ID {payment.Order.OrderId} has been marked as 'Completed' and the order status updated to 'Delivered'."
+                    };
+                    return new ApiResponse<ConfirmationResponseDTO>(200, confirmation);
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    return new ApiResponse<ConfirmationResponseDTO>(500, "An unexpected error occurred while completing the COD payment.");
+                }
+            }
+        }
+
+        public async Task<ApiResponse<PaymentResponseDTO>> GetPaymentByOrderIdAsync(int orderId)
+        {
+            try
+            {
+                var payment = await _DbContext.Payments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.OrderId == orderId);
+                if (payment == null)
+                {
+                    return new ApiResponse<PaymentResponseDTO>(404, "Payment not found for this order.");
+                }
+                var paymentResponse = new PaymentResponseDTO
+                {
+                    PaymentId = payment.Id,
+                    OrderId = payment.OrderId,
+                    PaymentMethod = payment.PaymentMethod,
+                    TransactionId = payment.TransactionId,
+                    Amount = payment.Amount,
+                    PaymentDate = payment.PaymentDate,
+                    Status = payment.PaymentStatus
+                };
+                return new ApiResponse<PaymentResponseDTO>(200, paymentResponse);
+            }
+            catch (Exception)
+            {
+                return new ApiResponse<PaymentResponseDTO>(500, "An unexpected error occurred while retrieving the payment.");
+            }
+        }
         private bool IsCashOnDelivery(string paymentMethod)
         {
             return paymentMethod.Equals("CashOnDelivery", StringComparison.OrdinalIgnoreCase) ||
