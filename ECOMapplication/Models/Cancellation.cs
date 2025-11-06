@@ -24,7 +24,7 @@ namespace ECOMapplication.Models
 
 
         [Required]
-        public DateTime ProcessedAt { get; set; }
+        public DateTime? ProcessedAt { get; set; }
 
 
         public int ProcessedBy { get; set; }
