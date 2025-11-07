@@ -22,11 +22,11 @@ namespace ECOMapplication.Services
             {
                 //retireve an active cart for the customer
                 var activeCart = await _DbContext.Carts.Include(ci => ci.CartItems).ThenInclude(ci => ci.Product)
-                    .FirstOrDefaultAsync(c => c.CustomerId == addToCartDTO.ProductId && !c.IsCheckedOut);
+                    .FirstOrDefaultAsync(c => c.CustomerId == addToCartDTO.CustomerId && !c.IsCheckedOut);
 
                 if(activeCart == null)
                 {
-                    var newCart = new Cart()
+                    activeCart = new Cart()
                     {
                         CustomerId = addToCartDTO.CustomerId,
                         IsCheckedOut = false,
@@ -34,7 +34,7 @@ namespace ECOMapplication.Services
                         UpdatedAt = DateTime.UtcNow,
                         CartItems = new List<CartItem>()
                     };
-                    _DbContext.Carts.Add(newCart);
+                    _DbContext.Carts.Add(activeCart);
                     await _DbContext.SaveChangesAsync();
                 }
                 //product to be added to cart. Fetch it
@@ -49,7 +49,7 @@ namespace ECOMapplication.Services
                 }
 
                 //Is product im trying to add already in the cart? if yes add to its quantity.
-                var existingCartItem = activeCart.CartItems.FirstOrDefault(ci => ci.ProductId == addToCartDTO.ProductId);
+                var existingCartItem = activeCart.CartItems?.FirstOrDefault(ci => ci.ProductId == addToCartDTO.ProductId);
                 if(existingCartItem != null )
                 {
                     if (existingCartItem.Quantity + addToCartDTO.Quantity > product.StockQuantity)
@@ -109,9 +109,10 @@ namespace ECOMapplication.Services
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow,
                         CartItems = new List<CartItemResponseDTO>(),
-                        TotalBasePrice = 0,
+                        Price = 0,
+                        Discount = 0,
                         TotalDiscount = 0,
-                        TotalAmount = 0
+                        NetPrice = 0
                     };
                     return new ApiResponse<CartResponseDTO>(200, emptyCartDTO);
                 }
@@ -139,14 +140,14 @@ namespace ECOMapplication.Services
                     return new ApiResponse<CartResponseDTO>(404, "Active cart not found.");
                 }
   
-                var cartItem = cart.CartItems.FirstOrDefault(ci => ci.Id == updateCartItemDTO.CartItemId);
+                var cartItem = cart?.CartItems?.FirstOrDefault(ci => ci.Id == updateCartItemDTO.CartItemId);
                 if (cartItem == null)
                 {
                     return new ApiResponse<CartResponseDTO>(404, "Cart item not found.");
                 }
 
                 // Ensure the updated quantity does not exceed the available product stock.
-                if (updateCartItemDTO.Quantity > cartItem.Product.StockQuantity)
+                if (updateCartItemDTO.Quantity > cartItem?.Product?.StockQuantity)
                 {
                     return new ApiResponse<CartResponseDTO>(400, $"Only {cartItem.Product.StockQuantity} units of {cartItem.Product.ProductName} are available.");
                 }
@@ -190,7 +191,7 @@ namespace ECOMapplication.Services
                 }
 
                 // Find the cart item to be removed.
-                var cartItem = cart.CartItems.FirstOrDefault(ci => ci.Id == removeCartItemDTO.CartItemId);
+                var cartItem = cart.CartItems?.FirstOrDefault(ci => ci.Id == removeCartItemDTO.CartItemId);
                 if (cartItem == null)
                 {
                     return new ApiResponse<CartResponseDTO>(404, "Cart item not found.");
@@ -262,14 +263,17 @@ namespace ECOMapplication.Services
                 TotalPrice = ci.TotalPrice
             }).ToList() ?? new List<CartItemResponseDTO>();
             // Initialize totals for base price, discount, and amount after discount.
-            decimal totalBasePrice = 0;
-            decimal totalDiscount = 0;
-            decimal totalAmount = 0;
+            decimal OriginalPrice = 0;
+            decimal TotalDiscount = 0;
+            decimal NetPrice = 0;
+            decimal AmountSaved = 0;
             // Iterate through each cart item DTO to accumulate the totals.
             foreach (var item in cartItemsDto)
             {
-                totalBasePrice += item.UnitPrice * item.Quantity;
-                totalAmount += item.TotalPrice;
+                OriginalPrice += item.UnitPrice * item.Quantity;
+                TotalDiscount += item.Discount * item.Quantity;
+                NetPrice = OriginalPrice - TotalDiscount;
+                AmountSaved = OriginalPrice - NetPrice;
             }
             // Create and return the final CartResponseDTO with all details and calculated totals.
             return new CartResponseDTO
@@ -280,9 +284,10 @@ namespace ECOMapplication.Services
                 CreatedAt = cart.CreatedAt,
                 UpdatedAt = cart.UpdatedAt,
                 CartItems = cartItemsDto,
-                TotalBasePrice = totalBasePrice,
-                TotalDiscount = totalAmount - totalBasePrice,
-                TotalAmount = totalAmount
+                Price = OriginalPrice,
+                TotalDiscount = TotalDiscount,
+                NetPrice = NetPrice,
+                AmountSaved=AmountSaved
             };
         }
     }
