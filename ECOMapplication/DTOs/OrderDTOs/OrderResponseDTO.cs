@@ -5,7 +5,7 @@ namespace ECOMapplication.DTOs.OrderDTOs
     public class OrderResponseDTO
     {
         public int Id { get; set; }
-        public string OrderNumber { get; set; }
+        public int OrderNumber { get; set; }
         public DateTime OrderDate { get; set; }
         public int CustomerId { get; set; }
         public int BillingAddressId { get; set; }

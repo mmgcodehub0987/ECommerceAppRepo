@@ -27,6 +27,7 @@ namespace ECommerceApp
             builder.Services.AddScoped<CategoryService>();
             builder.Services.AddScoped<ProductService>();
             builder.Services.AddScoped<CartService>();
+            builder.Services.AddScoped<OrderService>();
             builder.Services.AddScoped<PaymentService>();
             builder.Services.AddScoped<CancellationService>();
             builder.Services.AddScoped<RefundService>();

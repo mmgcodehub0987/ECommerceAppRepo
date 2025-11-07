@@ -1,12 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ECOMapplication.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ECOMapplication.DTOs.OrderDTOs
 {
     public class OrderStatusUpdateDTO
     {
-        [Required(ErrorMessage = "Product ID is required.")]
-        public int ProductId { get; set; }
-        [Range(1, 100, ErrorMessage = "Quantity must be between 1 and 100.")]
-        public int Quantity { get; set; }
+        [Required(ErrorMessage = "OrderId is Required")]
+        public int OrderId { get; set; }
+        [Required]
+        [EnumDataType(typeof(OrderStatus), ErrorMessage = "Invalid Order Status.")]
+        public OrderStatus OrderStatus { get; set; }
     }
 }
