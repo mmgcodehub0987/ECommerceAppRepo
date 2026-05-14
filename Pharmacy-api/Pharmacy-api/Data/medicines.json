@@ -1,0 +1,47 @@
+[
+  {
+    "Id": 1,
+    "FullName": "Paracetamol 500mg",
+    "Notes": "Pain relief tablet",
+    "ExpiryDate": "2027-12-31T00:00:00",
+    "Quantity": 100,
+    "Price": 25.50,
+    "Brand": "ABC Pharma"
+  },
+  {
+    "Id": 2,
+    "FullName": "Amoxicillin 500mg Capsule",
+    "Notes": "Complete full course. Take with food.",
+    "ExpiryDate": "2026-12-30T00:00:00",
+    "Quantity": 80,
+    "Price": 11.99,
+    "Brand": "GlaxoSmithKline"
+  },
+  {
+    "Id": 3,
+    "FullName": "Cetirizine 10mg Tablet",
+    "Notes": "For allergy relief. May cause drowsiness.",
+    "ExpiryDate": "2028-06-07T00:00:00",
+    "Quantity": 200,
+    "Price": 5.75,
+    "Brand": "Sun Pharma"
+  },
+  {
+    "Id": 4,
+    "FullName": "Omeprazole 20mg Capsule",
+    "Notes": "Take before breakfast. For acid reflux.",
+    "ExpiryDate": "2029-06-14T00:00:00",
+    "Quantity": 150,
+    "Price": 8.45,
+    "Brand": "Dr. Reddy\u0027s"
+  },
+  {
+    "Id": 5,
+    "FullName": "Ibuprofen 400mg Tablet",
+    "Notes": "Take with water. Avoid if stomach ulcers.",
+    "ExpiryDate": "2027-10-25T00:00:00",
+    "Quantity": 94,
+    "Price": 3.2,
+    "Brand": "Pfizer"
+  }
+]
